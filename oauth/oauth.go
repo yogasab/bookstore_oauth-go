@@ -46,6 +46,9 @@ func AuthenticateRequest(request *http.Request) *errors.ResponseError {
 
 	at, err := getAccessToken(accessTokenID)
 	if err != nil {
+		if err.Code == http.StatusNotFound {
+			return nil
+		}
 		return err
 	}
 
@@ -91,7 +94,7 @@ func cleanRequest(request *http.Request) {
 }
 
 func getAccessToken(accessTokenID string) (*accessToken, *errors.ResponseError) {
-	response, _ := resty.New().R().Get(fmt.Sprintf("/oauth/access-token/%s", accessTokenID))
+	response, _ := resty.New().R().Get(fmt.Sprintf("http://localhost:5000/api/v1/oauth/access-token/%s", accessTokenID))
 	if response == nil || response.RawResponse == nil {
 		return nil, errors.FormatError(http.StatusInternalServerError, "failed", "invalid restclient response when trying to get access token")
 	}
